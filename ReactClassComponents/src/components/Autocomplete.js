@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
+
 export const Autocomplete = (props) => {
   const [inputVal, setInputVal] = useState('');
   const [showList, setShowList] = useState(false);
-  const inputRef = React.createRef();
+  const inputRef = React.useRef(null);
   const names = props.names;
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export const Autocomplete = (props) => {
       document.removeEventListener('click', handleOutsideClick);
     }
 
-  }, [inputRef])
+  }, [inputRef, showList])
 
   const handleInput = (e) => {
     setInputVal(e.target.value)
@@ -60,22 +61,10 @@ export const Autocomplete = (props) => {
 
     return matches;
   }
-
+  
   const results = matches(names).map((result) => {
-    const nodeRef = React.createRef();
-    return (
-      <CSSTransition
-        nodeRef={nodeRef}
-        key={result}
-        classNames="result"
-        timeout={{ enter: 500, exit: 300 }}
-      >
-        <li ref={nodeRef} className="nameLi" onClick={selectName}>
-          {result}
-        </li>
-      </CSSTransition>
-    )
-  });
+    return <TransitionItem key={result} result={result} selectName={selectName}/>
+  })
 
   return (
     <section className="autocomplete-section">
@@ -98,6 +87,24 @@ export const Autocomplete = (props) => {
       </div>
     </section>
   );
+}
+
+export const TransitionItem = ({result, selectName, ...props}) => {
+  const nodeRef = React.useRef(null);
+  // debugger
+  return (
+    <CSSTransition
+      nodeRef={nodeRef}
+      key={result}
+      classNames="result"
+      timeout={{ enter: 500, exit: 300 }}
+      {...props}
+    >
+      <li ref={nodeRef} className="nameLi" onClick={selectName}>
+        {result}
+      </li>
+    </CSSTransition>
+  )
 }
 
 
